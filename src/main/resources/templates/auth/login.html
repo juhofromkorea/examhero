@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<!--
+    Thymeleaf を使うために xmlns:th を指定します。
+-->
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+
+    <!--
+        スマートフォンでも見やすくするための設定です。
+    -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ログイン - ExamHero</title>
+
+    <!--
+        共通CSSを読み込みます。
+    -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <div class="auth-container">
+        <div class="auth-card">
+
+            <h1>ExamHero</h1>
+            <h2>ログイン</h2>
+
+            <!--
+                会員登録が完了して /login?registered にリダイレクトされた場合に表示します。
+
+                AuthController の会員登録成功時:
+                  return "redirect:/login?registered";
+
+                そのため、URLに registered パラメータがある場合だけ
+                このメッセージが表示されます。
+            -->
+            <div class="success-message" th:if="${param.registered}">
+                会員登録が完了しました。ログインしてください。
+            </div>
+
+            <!--
+                ログインに失敗して /login?error に戻された場合に表示します。
+
+                Spring Security はログイン失敗時に、
+                デフォルトで /login?error にリダイレクトします。
+            -->
+            <div class="error-message" th:if="${param.error}">
+                メールアドレスまたはパスワードが正しくありません。
+            </div>
+
+            <!--
+                ログアウト後に /login?logout に移動した場合に表示できます。
+
+                今回の SecurityConfig では logoutSuccessUrl("/") にしているため、
+                基本的にはこの表示は使われません。
+
+                ただし、将来 logoutSuccessUrl("/login?logout") に変更した場合に使えます。
+            -->
+            <div class="success-message" th:if="${param.logout}">
+                ログアウトしました。
+            </div>
+
+            <!--
+                ログインフォームです。
+
+                th:action="@{/login}":
+                  Spring Security のログイン処理URLに送信します。
+
+                method="post":
+                  ログイン情報をPOSTで送ります。
+
+                注意:
+                  /login の POST 処理は AuthController ではなく、
+                  Spring Security が自動で処理します。
+            -->
+            <form th:action="@{/login}" method="post">
+
+                <!--
+                    メールアドレス入力欄
+
+                    name="email" が非常に重要です。
+
+                    SecurityConfig.java で以下のように設定しました。
+
+                    .usernameParameter("email")
+
+                    そのため、Spring Security は
+                    name="email" の入力値をログインIDとして受け取ります。
+                -->
+                <div class="form-group">
+                    <label for="email">メールアドレス</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="例: juho@example.com"
+                        required
+                    >
+                </div>
+
+                <!--
+                    パスワード入力欄
+
+                    name="password" も重要です。
+
+                    SecurityConfig.java で以下のように設定しました。
+
+                    .passwordParameter("password")
+
+                    そのため、Spring Security は
+                    name="password" の入力値をパスワードとして受け取ります。
+                -->
+                <div class="form-group">
+                    <label for="password">パスワード</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="パスワードを入力してください"
+                        required
+                    >
+                </div>
+
+                <!--
+                    CSRFトークン
+
+                    Spring Security では、POSTリクエストにCSRF対策が必要です。
+
+                    Thymeleaf + Spring Security を使っている場合、
+                    通常はフォーム内にこのhidden inputを入れておくと安全です。
+
+                    _csrf には、Spring Security が自動生成したトークンが入ります。
+                    これがないと、POST送信時に403エラーになる場合があります。
+                -->
+                <input
+                    type="hidden"
+                    th:name="${_csrf.parameterName}"
+                    th:value="${_csrf.token}"
+                >
+
+                <!--
+                    ログインボタンです。
+                    押すと /login にPOST送信され、Spring Security が認証処理を行います。
+                -->
+                <button type="submit" class="primary-button">
+                    ログイン
+                </button>
+            </form>
+
+            <!--
+                まだアカウントを持っていない人向けの会員登録リンクです。
+            -->
+            <p class="auth-link">
+                アカウントをお持ちでない方は
+                <a th:href="@{/signup}">会員登録</a>
+            </p>
+
+            <!--
+                トップページに戻るリンクです。
+            -->
+            <p class="auth-link">
+                <a th:href="@{/}">トップページへ戻る</a>
+            </p>
+
+        </div>
+    </div>
+
+</body>
+</html>

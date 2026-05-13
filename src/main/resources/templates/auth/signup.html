@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<!--
+    Thymeleaf を使うために xmlns:th を指定します。
+    th:xxx という属性を使うことで、Controller から渡されたデータをHTMLに表示できます。
+-->
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+
+    <!--
+        スマートフォンでも見やすくするための設定です。
+        レスポンシブデザインの基本設定としてよく使います。
+    -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>会員登録 - ExamHero</title>
+
+    <!--
+        CSSファイルを読み込みます。
+        th:href="@{/css/style.css}" と書くことで、
+        src/main/resources/static/css/style.css を参照できます。
+    -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <!--
+        画面全体を囲むコンテナです。
+        CSSで中央寄せや幅の調整をしやすくするために使います。
+    -->
+    <div class="auth-container">
+
+        <!--
+            会員登録フォーム全体をカード風に表示するための領域です。
+        -->
+        <div class="auth-card">
+
+            <h1>ExamHero</h1>
+            <h2>会員登録</h2>
+
+            <!--
+                UserService などで発生した業務エラーを表示します。
+                例:
+                - このメールアドレスは既に登録されています
+            -->
+            <div class="error-message" th:if="${errorMessage}" th:text="${errorMessage}">
+                エラーメッセージ
+            </div>
+
+            <!--
+                会員登録フォームです。
+
+                th:action="@{/signup}":
+                  フォーム送信先を /signup にします。
+
+                method="post":
+                  入力内容をPOSTリクエストで送信します。
+
+                th:object="${signupForm}":
+                  AuthController から渡された signupForm をこのフォームに紐づけます。
+
+                SignupForm のフィールド:
+                  - username
+                  - email
+                  - password
+            -->
+            <form th:action="@{/signup}" th:object="${signupForm}" method="post">
+
+                <input
+                    type="hidden"
+                    th:name="${_csrf.parameterName}"
+                    th:value="${_csrf.token}"
+                >
+
+                <!--
+                    ユーザー名入力欄
+                    th:field="*{username}" は SignupForm の username と対応します。
+
+                    実際には以下のようなHTMLに変換されます。
+                    name="username"
+                    id="username"
+                -->
+                <div class="form-group">
+                    <label for="username">ユーザー名</label>
+                    <input
+                        type="text"
+                        th:field="*{username}"
+                        placeholder="例: 田中太郎"
+                    >
+
+                    <!--
+                        username にバリデーションエラーがある場合だけ表示されます。
+                        例:
+                        - ユーザー名を入力してください
+                        - ユーザー名は50文字以内で入力してください
+                    -->
+                    <p class="field-error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}">
+                        ユーザー名エラー
+                    </p>
+                </div>
+
+                <!--
+                    メールアドレス入力欄
+                    th:field="*{email}" は SignupForm の email と対応します。
+                -->
+                <div class="form-group">
+                    <label for="email">メールアドレス</label>
+                    <input
+                        type="email"
+                        th:field="*{email}"
+                        placeholder="例: juho@example.com"
+                    >
+
+                    <!--
+                        email にバリデーションエラーがある場合だけ表示されます。
+                        例:
+                        - メールアドレスを入力してください
+                        - メールアドレスの形式で入力してください
+                    -->
+                    <p class="field-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">
+                        メールアドレスエラー
+                    </p>
+                </div>
+
+                <!--
+                    パスワード入力欄
+                    th:field="*{password}" は SignupForm の password と対応します。
+                -->
+                <div class="form-group">
+                    <label for="password">パスワード</label>
+                    <input
+                        type="password"
+                        th:field="*{password}"
+                        placeholder="8文字以上で入力してください"
+                    >
+
+                    <!--
+                        password にバリデーションエラーがある場合だけ表示されます。
+                        例:
+                        - パスワードを入力してください
+                        - パスワードは8文字以上100文字以内で入力してください
+                    -->
+                    <p class="field-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">
+                        パスワードエラー
+                    </p>
+                </div>
+
+                <!--
+                    会員登録ボタンです。
+                    押すと /signup にPOSTリクエストが送信されます。
+                -->
+                <button type="submit" class="primary-button">
+                    登録する
+                </button>
+            </form>
+
+            <!--
+                すでにアカウントを持っている人向けのログインページへのリンクです。
+            -->
+            <p class="auth-link">
+                すでにアカウントをお持ちですか？
+                <a th:href="@{/login}">ログイン</a>
+            </p>
+
+            <!--
+                トップページに戻るリンクです。
+            -->
+            <p class="auth-link">
+                <a th:href="@{/}">トップページへ戻る</a>
+            </p>
+
+        </div>
+    </div>
+
+</body>
+</html>
