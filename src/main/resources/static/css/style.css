@@ -1,0 +1,816 @@
+/*
+    ExamHero 共通スタイル
+
+    このCSSファイルは、ExamHero全体で使う見た目をまとめるためのファイルです。
+
+    Spring Bootでは、
+      src/main/resources/static/css/style.css
+    にCSSを置くと、ブラウザからは
+      /css/style.css
+    として読み込めます。
+
+    HTML側では以下のように読み込みます。
+      <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    今回は、以下の画面で共通して使えるようにしています。
+    - トップページ
+    - 会員登録画面
+    - ログイン画面
+    - ダッシュボード画面
+    - 今後作るカテゴリ画面
+    - 今後作る問題カード画面
+*/
+
+/* ==============================
+   1. 全体の基本設定
+   ============================== */
+
+/*
+    * は「すべての要素」を意味します。
+
+    box-sizing: border-box;
+    を指定すると、padding や border を含めて幅を計算してくれるため、
+    レイアウトが崩れにくくなります。
+*/
+* {
+    box-sizing: border-box;
+}
+
+/*
+    body は画面全体の基本設定です。
+
+    margin: 0;
+    を指定することで、ブラウザが最初から持っている余白を消します。
+*/
+body {
+    margin: 0;
+    font-family:
+        "Noto Sans JP",
+        "Hiragino Kaku Gothic ProN",
+        "Yu Gothic",
+        Meiryo,
+        sans-serif;
+    color: #1f2937;
+    background: #f3f6fb;
+    line-height: 1.7;
+}
+
+/*
+    aタグはリンクです。
+
+    text-decoration: none;
+    にすると、リンクの下線を消せます。
+*/
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/*
+    input, button, textarea, select はフォーム部品です。
+
+    font: inherit;
+    を指定すると、bodyで指定した文字の雰囲気と揃います。
+*/
+input,
+button,
+textarea,
+select {
+    font: inherit;
+}
+
+/*
+    button は最初からブラウザ独自の見た目がついているため、
+    cursor: pointer;
+    を指定して「クリックできるもの」と分かりやすくします。
+*/
+button {
+    cursor: pointer;
+}
+
+/* ==============================
+   2. 共通コンテナ
+   ============================== */
+
+/*
+    page-container はログイン後の画面全体を囲むためのクラスです。
+
+    max-width を指定することで、大きい画面でも横に広がりすぎないようにします。
+*/
+.page-container {
+    width: 100%;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+/*
+    landing-container はトップページ用のコンテナです。
+
+    トップページは少し広めに見せたいので、page-container と分けています。
+*/
+.landing-container {
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+/* ==============================
+   3. ヘッダー
+   ============================== */
+
+/*
+    app-header はログイン後の共通ヘッダーです。
+
+    display: flex;
+    を使うことで、ロゴとログアウトボタンを横並びにできます。
+*/
+.app-header,
+.landing-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 0;
+    margin-bottom: 28px;
+}
+
+/*
+    app-logo はサービス名の表示です。
+
+    font-weight を太くして、アプリ名として目立たせます。
+*/
+.app-logo a {
+    font-size: 26px;
+    font-weight: 800;
+    color: #2563eb;
+    letter-spacing: -0.03em;
+}
+
+/*
+    header-actions はログイン中ユーザー表示とログアウトボタンをまとめます。
+*/
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/*
+    login-user は「ログイン中: メールアドレス」の表示です。
+*/
+.login-user {
+    font-size: 14px;
+    color: #64748b;
+}
+
+/*
+    logout-form はログアウトボタン用のフォームです。
+
+    formには標準で余白がつくことがあるため、margin: 0; にしています。
+*/
+.logout-form {
+    margin: 0;
+}
+
+/*
+    landing-nav はトップページ右上のログイン・会員登録リンクです。
+*/
+.landing-nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/*
+    nav-link は普通のテキストリンクです。
+*/
+.nav-link {
+    color: #475569;
+    font-weight: 600;
+}
+
+/*
+    nav-button は会員登録など、少し目立たせたいリンクです。
+*/
+.nav-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 16px;
+    border-radius: 999px;
+    color: #ffffff;
+    background: #2563eb;
+    font-weight: 700;
+    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.22);
+}
+
+/* ==============================
+   4. トップページ
+   ============================== */
+
+/*
+    landing-hero はトップページのメインメッセージ部分です。
+*/
+.landing-hero {
+    padding: 72px 0 48px;
+    text-align: center;
+}
+
+/*
+    hero-badge は小さなラベル表示です。
+
+    例:
+      AI × 復習 × 資格試験
+*/
+.hero-badge {
+    display: inline-block;
+    margin-bottom: 18px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    color: #2563eb;
+    background: #dbeafe;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/*
+    landing-hero h1 はトップページの一番大きな見出しです。
+*/
+.landing-hero h1 {
+    margin: 0;
+    font-size: clamp(36px, 6vw, 64px);
+    line-height: 1.15;
+    letter-spacing: -0.05em;
+    color: #0f172a;
+}
+
+/*
+    landing-hero p は説明文です。
+*/
+.landing-hero p {
+    max-width: 720px;
+    margin: 20px auto 0;
+    color: #64748b;
+    font-size: 18px;
+}
+
+/*
+    hero-actions はトップページのボタン領域です。
+*/
+.hero-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-top: 34px;
+    flex-wrap: wrap;
+}
+
+/* ==============================
+   5. 認証画面
+   ============================== */
+
+/*
+    auth-container はログイン・会員登録画面の背景と中央寄せを担当します。
+*/
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 18px;
+}
+
+/*
+    auth-card はフォーム全体をカードのように見せる領域です。
+*/
+.auth-card {
+    width: 100%;
+    max-width: 440px;
+    padding: 36px;
+    border-radius: 24px;
+    background: #ffffff;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+}
+
+/*
+    auth-card h1 はサービス名です。
+*/
+.auth-card h1 {
+    margin: 0;
+    color: #2563eb;
+    font-size: 30px;
+    text-align: center;
+}
+
+/*
+    auth-card h2 は「ログイン」「会員登録」などの画面名です。
+*/
+.auth-card h2 {
+    margin: 8px 0 28px;
+    color: #0f172a;
+    font-size: 22px;
+    text-align: center;
+}
+
+/*
+    form-group はラベルと入力欄を1セットにするためのクラスです。
+*/
+.form-group {
+    margin-bottom: 18px;
+}
+
+/*
+    label は入力項目名です。
+*/
+.form-group label {
+    display: block;
+    margin-bottom: 7px;
+    color: #334155;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/*
+    input はテキスト入力欄です。
+
+    width: 100%;
+    を指定することで、親要素の幅いっぱいに広がります。
+*/
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    color: #0f172a;
+    background: #ffffff;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/*
+    :focus は入力欄が選択されている状態です。
+
+    ユーザーが今どこに入力しているか分かりやすくします。
+*/
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+}
+
+/*
+    field-error は、Bean Validation のエラーを表示するための文字です。
+*/
+.field-error {
+    margin: 6px 0 0;
+    color: #dc2626;
+    font-size: 13px;
+}
+
+/*
+    auth-link はログイン画面・会員登録画面の下部リンクです。
+*/
+.auth-link {
+    margin: 18px 0 0;
+    text-align: center;
+    color: #64748b;
+    font-size: 14px;
+}
+
+/*
+    auth-link 内の a はクリックできるリンクなので、青色で強調します。
+*/
+.auth-link a {
+    color: #2563eb;
+    font-weight: 700;
+}
+
+/* ==============================
+   6. ボタン
+   ============================== */
+
+/*
+    primary-button は一番重要な操作に使うボタンです。
+
+    例:
+      - 会員登録
+      - ログイン
+      - 保存
+*/
+.primary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 13px 18px;
+    border: none;
+    border-radius: 12px;
+    color: #ffffff;
+    background: #2563eb;
+    font-weight: 800;
+    box-shadow: 0 10px 22px rgba(37, 99, 235, 0.24);
+    transition: transform 0.15s, background 0.15s, box-shadow 0.15s;
+}
+
+/*
+    hover はマウスを乗せたときの状態です。
+*/
+.primary-button:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+    box-shadow: 0 14px 28px rgba(37, 99, 235, 0.28);
+}
+
+/*
+    secondary-button はログアウトなど、少し控えめな操作に使うボタンです。
+*/
+.secondary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 9px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    color: #334155;
+    background: #ffffff;
+    font-weight: 700;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.secondary-button:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+}
+
+/*
+    inline-button は一覧画面などで横幅いっぱいにしたくないボタン用です。
+*/
+.inline-button {
+    width: auto;
+}
+
+/* ==============================
+   7. メッセージ表示
+   ============================== */
+
+/*
+    error-message はログイン失敗や入力エラーなどを表示します。
+*/
+.error-message {
+    margin-bottom: 18px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    color: #991b1b;
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/*
+    success-message は会員登録成功などを表示します。
+*/
+.success-message {
+    margin-bottom: 18px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    color: #166534;
+    background: #dcfce7;
+    border: 1px solid #bbf7d0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* ==============================
+   8. ダッシュボード
+   ============================== */
+
+/*
+    hero-section はダッシュボード上部の説明エリアです。
+*/
+.hero-section {
+    padding: 36px;
+    border-radius: 28px;
+    color: #ffffff;
+    background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.35), transparent 34%),
+        linear-gradient(135deg, #2563eb, #4f46e5);
+    box-shadow: 0 18px 42px rgba(37, 99, 235, 0.22);
+}
+
+/*
+    hero-section h1 はダッシュボードの見出しです。
+*/
+.hero-section h1 {
+    margin: 0;
+    font-size: clamp(30px, 5vw, 48px);
+    line-height: 1.2;
+    letter-spacing: -0.04em;
+}
+
+/*
+    hero-section p は説明文です。
+*/
+.hero-section p {
+    margin: 12px 0 0;
+    color: #dbeafe;
+    font-size: 17px;
+}
+
+/*
+    stats-grid は学習状況カードを横並びにする領域です。
+
+    grid-template-columns の repeat(auto-fit, minmax(...)) により、
+    画面が狭くなると自動で縦並びになります。
+*/
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+    margin-top: 22px;
+}
+
+/*
+    stat-card は試験カテゴリ数・問題カード数などを表示するカードです。
+*/
+.stat-card {
+    padding: 22px;
+    border-radius: 22px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+/*
+    stat-label はカード上部の小さな説明です。
+*/
+.stat-label {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/*
+    stat-value は数値部分です。
+*/
+.stat-value {
+    margin: 8px 0;
+    color: #0f172a;
+    font-size: 38px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: -0.04em;
+}
+
+/*
+    stat-description はカード下部の補足説明です。
+*/
+.stat-description {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+/*
+    action-section は学習メニュー全体です。
+*/
+.action-section {
+    margin-top: 36px;
+}
+
+/*
+    action-section h2 は「学習メニュー」の見出しです。
+*/
+.action-section h2 {
+    margin: 0 0 16px;
+    color: #0f172a;
+    font-size: 24px;
+}
+
+/*
+    action-grid は機能メニューカードを並べる領域です。
+*/
+.action-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
+}
+
+/*
+    action-card はカテゴリ管理・問題登録などへのリンクカードです。
+*/
+.action-card {
+    display: block;
+    min-height: 170px;
+    padding: 24px;
+    border-radius: 22px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+}
+
+/*
+    action-card にマウスを乗せると、少し浮き上がるようにします。
+*/
+.action-card:hover {
+    transform: translateY(-3px);
+    border-color: #93c5fd;
+    box-shadow: 0 18px 38px rgba(15, 23, 42, 0.12);
+}
+
+/*
+    action-card h3 は機能名です。
+*/
+.action-card h3 {
+    margin: 0 0 10px;
+    color: #0f172a;
+    font-size: 19px;
+}
+
+/*
+    action-card p は機能説明です。
+*/
+.action-card p {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+/*
+    disabled-card は、まだ実装していない機能を薄く表示するためのクラスです。
+*/
+.disabled-card {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.disabled-card:hover {
+    transform: none;
+    border-color: #e2e8f0;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+/* ==============================
+   9. 今後の一覧画面・フォーム画面用
+   ============================== */
+
+/*
+    content-card はカテゴリ一覧や問題一覧など、
+    汎用的な白いカードとして使います。
+*/
+.content-card {
+    padding: 26px;
+    border-radius: 22px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+/*
+    page-title は各画面のタイトルです。
+*/
+.page-title {
+    margin: 0 0 20px;
+    color: #0f172a;
+    font-size: 30px;
+    letter-spacing: -0.03em;
+}
+
+/*
+    page-description はタイトル下の説明文です。
+*/
+.page-description {
+    margin: -10px 0 24px;
+    color: #64748b;
+}
+
+/*
+    list-table は一覧表示用のテーブルです。
+*/
+.list-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+}
+
+/*
+    th はテーブルの見出しセルです。
+*/
+.list-table th {
+    padding: 12px;
+    color: #475569;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: left;
+    font-size: 14px;
+}
+
+/*
+    td はテーブルの通常セルです。
+*/
+.list-table td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #334155;
+}
+
+/*
+    empty-message は、データがまだないときに表示する説明です。
+*/
+.empty-message {
+    padding: 24px;
+    border-radius: 18px;
+    color: #64748b;
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    text-align: center;
+}
+
+/*
+    form-actions はフォーム下部のボタン領域です。
+*/
+.form-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+}
+
+/*
+    back-link は「一覧へ戻る」などのリンクです。
+*/
+.back-link {
+    color: #2563eb;
+    font-weight: 700;
+}
+
+/* ==============================
+   10. レスポンシブ対応
+   ============================== */
+
+/*
+    画面幅が 720px 以下になった場合の設定です。
+
+    スマホ表示では、横並びを縦並びにして見やすくします。
+*/
+@media (max-width: 720px) {
+    .page-container,
+    .landing-container {
+        padding: 18px;
+    }
+
+    .app-header,
+    .landing-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .header-actions,
+    .landing-nav {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .hero-section {
+        padding: 28px 22px;
+    }
+
+    .auth-card {
+        padding: 28px 22px;
+        border-radius: 20px;
+    }
+
+    .landing-hero {
+        padding: 42px 0 32px;
+        text-align: left;
+    }
+
+    .landing-hero p {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .hero-actions {
+        justify-content: flex-start;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .inline-button,
+    .secondary-button {
+        width: 100%;
+    }
+}
