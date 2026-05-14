@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<!--
+    Thymeleaf を使うために xmlns:th を指定します。
+-->
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+
+    <!--
+        スマートフォンでも見やすくするための設定です。
+    -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>試験カテゴリ一覧 - ExamHero</title>
+
+    <!--
+        共通CSSを読み込みます。
+        src/main/resources/static/css/style.css に対応します。
+    -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <!--
+        ページ全体を囲むコンテナです。
+    -->
+    <div class="page-container">
+
+        <!--
+            ログイン後画面の共通ヘッダーです。
+        -->
+        <header class="app-header">
+
+            <!--
+                サービス名です。
+                クリックするとダッシュボードへ戻ります。
+            -->
+            <div class="app-logo">
+                <a th:href="@{/dashboard}">ExamHero</a>
+            </div>
+
+            <!--
+                ログイン中ユーザー表示とログアウトボタンです。
+            -->
+            <div class="header-actions">
+
+                <!--
+                    Controller から渡された loginEmail を表示します。
+                -->
+                <span class="login-user">
+                    ログイン中:
+                    <strong th:text="${loginEmail}">user@example.com</strong>
+                </span>
+
+                <!--
+                    Spring Security のログアウト処理です。
+                    POSTで /logout に送信します。
+                -->
+                <form th:action="@{/logout}" method="post" class="logout-form">
+                    <input
+                        type="hidden"
+                        th:name="${_csrf.parameterName}"
+                        th:value="${_csrf.token}"
+                    >
+
+                    <button type="submit" class="secondary-button">
+                        ログアウト
+                    </button>
+                </form>
+            </div>
+        </header>
+
+        <main>
+
+            <!--
+                カテゴリ一覧全体を白いカードとして表示します。
+            -->
+            <section class="content-card">
+
+                <!--
+                    画面タイトルです。
+                -->
+                <h1 class="page-title">試験カテゴリ一覧</h1>
+
+                <!--
+                    画面の説明文です。
+                -->
+                <p class="page-description">
+                    学習する試験ごとにカテゴリを作成し、問題カードを整理できます。
+                </p>
+
+                <!--
+                    保存成功時のメッセージです。
+                    Controller の addFlashAttribute("successMessage", ...) で渡された場合だけ表示されます。
+                -->
+                <div class="success-message" th:if="${successMessage}" th:text="${successMessage}">
+                    カテゴリを作成しました
+                </div>
+
+                <!--
+                    画面上部の操作ボタンです。
+                -->
+                <div class="form-actions">
+
+                    <!--
+                        カテゴリ作成画面へのリンクです。
+                    -->
+                    <a th:href="@{/categories/new}" class="primary-button inline-button">
+                        新しいカテゴリを作成
+                    </a>
+
+                    <!--
+                        ダッシュボードへ戻るリンクです。
+                    -->
+                    <a th:href="@{/dashboard}" class="back-link">
+                        ダッシュボードへ戻る
+                    </a>
+                </div>
+
+                <!--
+                    カテゴリが1件もない場合の表示です。
+                    #lists.isEmpty(categories) は、リストが空かどうかを確認する Thymeleaf の書き方です。
+                -->
+                <div class="empty-message" th:if="${#lists.isEmpty(categories)}">
+                    まだ試験カテゴリがありません。まずは学習したい試験カテゴリを作成しましょう。
+                </div>
+
+                <!--
+                    カテゴリがある場合だけテーブルを表示します。
+                -->
+                <table class="list-table" th:if="${!#lists.isEmpty(categories)}">
+
+                    <thead>
+                        <tr>
+                            <th>カテゴリ名</th>
+                            <th>説明</th>
+                            <th>作成日時</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <!--
+                            th:each は繰り返し表示です。
+
+                            categories は Controller から渡されたカテゴリ一覧です。
+                            その中の1件ずつを category という名前で取り出します。
+                        -->
+                        <tr th:each="category : ${categories}">
+
+                            <!--
+                                カテゴリ名を表示します。
+                            -->
+                            <td>
+                                <strong th:text="${category.name}">AWS SAA</strong>
+                            </td>
+
+                            <!--
+                                説明を表示します。
+                                説明が空の場合は「説明なし」と表示します。
+                            -->
+                            <td>
+                                <span
+                                    th:if="${category.description != null and !#strings.isEmpty(category.description)}"
+                                    th:text="${category.description}"
+                                >
+                                    説明文
+                                </span>
+
+                                <span
+                                    th:if="${category.description == null or #strings.isEmpty(category.description)}"
+                                >
+                                    説明なし
+                                </span>
+                            </td>
+
+                            <!--
+                                作成日時を表示します。
+                                #temporals.format は LocalDateTime を見やすい文字列に変換します。
+                            -->
+                            <td th:text="${#temporals.format(category.createdAt, 'yyyy/MM/dd HH:mm')}">
+                                2026/05/14 10:00
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </section>
+        </main>
+    </div>
+
+</body>
+</html>

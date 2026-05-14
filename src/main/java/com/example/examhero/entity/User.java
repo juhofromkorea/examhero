@@ -1,12 +1,15 @@
 package com.example.examhero.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -20,16 +23,6 @@ import jakarta.persistence.Table;
  * データベースのテーブルと対応します。
  *
  * この User クラスは、データベース上では users テーブルとして作成されます。
- *
- * 例:
- * users テーブル
- * - id
- * - username
- * - email
- * - password
- * - role
- * - created_at
- * - updated_at
  */
 @Entity
 @Table(name = "users") // DB上のテーブル名を users に指定します。user は予約語になる場合があるため避けています。
@@ -38,14 +31,11 @@ public class User {
     /**
      * ユーザーID
      *
-     * 各ユーザーを一意に区別するための番号です。
-     *
      * @Id:
      *   このフィールドが主キーであることを表します。
      *
      * @GeneratedValue:
      *   IDを自動採番する設定です。
-     *   ユーザー登録時に、DBが 1, 2, 3... のように自動で番号を付けます。
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,13 +45,6 @@ public class User {
      * ユーザー名
      *
      * 画面に表示する名前です。
-     * 例: 島陽光、山田智弘、キムジュホ
-     *
-     * nullable = false:
-     *   DBに保存するとき、この値は必須です。
-     *
-     * length = 50:
-     *   最大50文字まで保存できます。
      */
     @Column(nullable = false, length = 50)
     private String username;
@@ -70,13 +53,7 @@ public class User {
      * メールアドレス
      *
      * ログインIDとして使用します。
-     *
-     * unique = true:
-     *   同じメールアドレスを持つユーザーを複数作れないようにします。
-     *
-     * 例:
-     *   juho@example.com で登録済みの場合、
-     *   別のユーザーが同じ juho@example.com で登録することはできません。
+     * unique = true により、同じメールアドレスで複数登録できないようにします。
      */
     @Column(nullable = false, unique = true, length = 255)
     private String email;
@@ -86,13 +63,7 @@ public class User {
      *
      * 注意:
      *   実際のサービスでは、入力されたパスワードをそのまま保存してはいけません。
-     *   Spring Security を使って BCrypt などで暗号化した文字列を保存します。
-     *
-     * 例:
-     *   入力値: password123
-     *   DB保存値: $2a$10$xxxxxxxxxxxxxxxxxxxxxxxx...
-     *
-     * 暗号化後の文字列は長くなるため、length は 255 にしています。
+     *   UserService 側で BCrypt によって暗号化した文字列を保存します。
      */
     @Column(nullable = false, length = 255)
     private String password;
@@ -100,15 +71,9 @@ public class User {
     /**
      * ユーザー権限
      *
-     * 一般ユーザーか管理者かを区別するための値です。
-     *
-     * 初期値は "USER" です。
-     *
      * 例:
      * - USER  : 一般ユーザー
      * - ADMIN : 管理者
-     *
-     * 今後、管理者ページを作るときに使用します。
      */
     @Column(nullable = false, length = 20)
     private String role = "USER";
@@ -117,8 +82,6 @@ public class User {
      * 作成日時
      *
      * ユーザーが登録された日時を保存します。
-     *
-     * @PrePersist の onCreate() メソッドで自動的に値を入れます。
      */
     @Column(nullable = false)
     private LocalDateTime createdAt;
@@ -127,22 +90,34 @@ public class User {
      * 更新日時
      *
      * ユーザー情報が更新された日時を保存します。
-     *
-     * まだ一度も更新されていない場合は null のままです。
-     *
-     * @PreUpdate の onUpdate() メソッドで自動的に値を入れます。
      */
     private LocalDateTime updatedAt;
+
+    /**
+     * ユーザーが作成した試験カテゴリ一覧
+     *
+     * @OneToMany:
+     *   1人のユーザーが、複数の試験カテゴリを持つ関係を表します。
+     *
+     * mappedBy = "user":
+     *   ExamCategory クラス側にある user フィールドが、
+     *   この関連の主役であることを表します。
+     *
+     * JPA の関連では、外部キーを持っている側が関係の主役になります。
+     * 今回は exam_categories テーブルが user_id を持つため、
+     * ExamCategory 側が主役です。
+     *
+     * ここでは cascade や orphanRemoval はまだ付けていません。
+     * 初期MVPでは「ユーザー削除時にカテゴリも自動削除する」処理を
+     * まだ作らないため、まずは安全でシンプルな関連だけにしています。
+     */
+    @OneToMany(mappedBy = "user")
+    private List<ExamCategory> examCategories = new ArrayList<>();
 
     /**
      * デフォルトコンストラクタ
      *
      * JPA がエンティティを作成するときに必要です。
-     *
-     * 例えば、DBから users テーブルのデータを取得したとき、
-     * JPA はこのコンストラクタを使って User オブジェクトを作ります。
-     *
-     * そのため、Entity クラスには基本的に空のコンストラクタが必要です。
      */
     public User() {
     }
@@ -151,12 +126,6 @@ public class User {
      * ユーザー登録時に使いやすいコンストラクタ
      *
      * 会員登録処理で User オブジェクトを作るときに使用します。
-     *
-     * 例:
-     * User user = new User("Juho", "juho@example.com", encodedPassword);
-     *
-     * role は基本的に一般ユーザーとして登録するため、
-     * ここでは "USER" を設定しています。
      */
     public User(String username, String email, String password) {
         this.username = username;
@@ -170,8 +139,6 @@ public class User {
      *
      * @PrePersist:
      *   Entity が新規保存される前に自動実行されます。
-     *
-     * ここでは、ユーザー登録時の日時を createdAt に設定しています。
      */
     @PrePersist
     public void onCreate() {
@@ -183,8 +150,6 @@ public class User {
      *
      * @PreUpdate:
      *   Entity が更新される前に自動実行されます。
-     *
-     * ここでは、ユーザー情報の更新日時を updatedAt に設定しています。
      */
     @PreUpdate
     public void onUpdate() {
@@ -195,7 +160,6 @@ public class User {
      * ユーザーIDを取得します。
      *
      * id は DB が自動で作る値なので、setter は基本的に作りません。
-     * アプリ側から勝手に id を変更しないようにするためです。
      */
     public Long getId() {
         return id;
@@ -234,7 +198,6 @@ public class User {
      *
      * 注意:
      *   実際の画面でパスワードをそのまま表示することは基本的にありません。
-     *   主に Spring Security の認証処理などで使います。
      */
     public String getPassword() {
         return password;
@@ -252,9 +215,6 @@ public class User {
 
     /**
      * 権限を取得します。
-     *
-     * 例:
-     * USER, ADMIN
      */
     public String getRole() {
         return role;
@@ -262,9 +222,6 @@ public class User {
 
     /**
      * 権限を設定します。
-     *
-     * 通常の会員登録では USER のままで問題ありません。
-     * 管理者ユーザーを作る場合に ADMIN を設定します。
      */
     public void setRole(String role) {
         this.role = role;
@@ -282,5 +239,25 @@ public class User {
      */
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    /**
+     * このユーザーが作成した試験カテゴリ一覧を取得します。
+     *
+     * 一覧画面では基本的に ExamCategoryRepository の
+     * findByUserOrderByCreatedAtDesc(user) を使う方が分かりやすいです。
+     */
+    public List<ExamCategory> getExamCategories() {
+        return examCategories;
+    }
+
+    /**
+     * 試験カテゴリ一覧を設定します。
+     *
+     * JPA が DB から User と関連カテゴリを復元するときに使う可能性があるため、
+     * setter も用意しています。
+     */
+    public void setExamCategories(List<ExamCategory> examCategories) {
+        this.examCategories = examCategories;
     }
 }
