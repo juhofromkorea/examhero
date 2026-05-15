@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>問題を解く - ExamHero</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <div class="page-container">
+
+        <header class="app-header">
+            <div class="app-logo">
+                <a th:href="@{/dashboard}">ExamHero</a>
+            </div>
+
+            <div class="header-actions">
+                <span class="login-user">
+                    ログイン中:
+                    <strong th:text="${loginEmail}">user@example.com</strong>
+                </span>
+
+                <a th:href="@{/dashboard}" class="secondary-button">
+                    ダッシュボードへ戻る
+                </a>
+            </div>
+        </header>
+
+        <main>
+            <section class="content-card">
+
+                <h1 class="page-title">問題を解く</h1>
+
+                <p class="page-description">
+                    選択肢を1つ選んで「解答する」ボタンを押してください。
+                </p>
+
+                <div class="form-group">
+                    <label>試験カテゴリ</label>
+
+                    <div class="empty-message" style="text-align: left;">
+                        <strong th:text="${questionCard.examCategory.name}">
+                            AWS SAA
+                        </strong>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>問題文</label>
+
+                    <div
+                        class="empty-message"
+                        style="text-align: left; white-space: pre-wrap;"
+                        th:text="${questionCard.questionText}"
+                    >
+                        問題文がここに表示されます。
+                    </div>
+                </div>
+
+                <div
+                    class="error-message"
+                    th:if="${errorMessage != null}"
+                    th:text="${errorMessage}"
+                >
+                    エラーメッセージ
+                </div>
+
+                <div
+                    class="success-message"
+                    th:if="${answered == true and isCorrect == true}"
+                >
+                    正解です！
+                </div>
+
+                <div
+                    class="error-message"
+                    th:if="${answered == true and isCorrect == false}"
+                >
+                    不正解です。
+                </div>
+
+                <form
+                    th:action="@{/questions/{id}/solve(id=${questionCard.id})}"
+                    method="post"
+                >
+                    <input
+                        type="hidden"
+                        th:name="${_csrf.parameterName}"
+                        th:value="${_csrf.token}"
+                    >
+
+                    <div class="form-group">
+                        <label>選択肢</label>
+
+                        <!--
+                            answer-list:
+                            選択肢全体を縦に並べるためのエリアです。
+                            table ではなく div で作ることで、radio ボタンの位置ズレを防ぎます。
+                        -->
+                        <div class="answer-list">
+
+                            <!--
+                                選択肢A
+
+                                input type="radio":
+                                実際にフォーム送信される値です。
+
+                                class="answer-radio":
+                                CSSで画面上は見えないようにします。
+                                ただし、選択状態は保持されます。
+
+                                label for="answerA":
+                                このラベル全体をクリックすると、
+                                id="answerA" の radio が選択されます。
+
+                                つまり、A の四角ボタンや文章部分を押しても選択できます。
+                            -->
+                            <div class="answer-item">
+                                <input
+                                    id="answerA"
+                                    class="answer-radio"
+                                    type="radio"
+                                    name="selectedAnswer"
+                                    value="A"
+                                    th:checked="${selectedAnswer == 'A'}"
+                                >
+
+                                <label class="answer-option" for="answerA">
+                                    <span class="answer-label">A</span>
+
+                                    <span
+                                        class="answer-text"
+                                        th:text="${questionCard.optionA}"
+                                    >
+                                        選択肢A
+                                    </span>
+
+                                    <span
+                                        class="answer-correct-badge"
+                                        th:if="${answered == true and questionCard.correctAnswer == 'A'}"
+                                    >
+                                        正解
+                                    </span>
+                                </label>
+                            </div>
+
+                            <!-- 選択肢B -->
+                            <div class="answer-item">
+                                <input
+                                    id="answerB"
+                                    class="answer-radio"
+                                    type="radio"
+                                    name="selectedAnswer"
+                                    value="B"
+                                    th:checked="${selectedAnswer == 'B'}"
+                                >
+
+                                <label class="answer-option" for="answerB">
+                                    <span class="answer-label">B</span>
+
+                                    <span
+                                        class="answer-text"
+                                        th:text="${questionCard.optionB}"
+                                    >
+                                        選択肢B
+                                    </span>
+
+                                    <span
+                                        class="answer-correct-badge"
+                                        th:if="${answered == true and questionCard.correctAnswer == 'B'}"
+                                    >
+                                        正解
+                                    </span>
+                                </label>
+                            </div>
+
+                            <!-- 選択肢C -->
+                            <div class="answer-item">
+                                <input
+                                    id="answerC"
+                                    class="answer-radio"
+                                    type="radio"
+                                    name="selectedAnswer"
+                                    value="C"
+                                    th:checked="${selectedAnswer == 'C'}"
+                                >
+
+                                <label class="answer-option" for="answerC">
+                                    <span class="answer-label">C</span>
+
+                                    <span
+                                        class="answer-text"
+                                        th:text="${questionCard.optionC}"
+                                    >
+                                        選択肢C
+                                    </span>
+
+                                    <span
+                                        class="answer-correct-badge"
+                                        th:if="${answered == true and questionCard.correctAnswer == 'C'}"
+                                    >
+                                        正解
+                                    </span>
+                                </label>
+                            </div>
+
+                            <!-- 選択肢D -->
+                            <div class="answer-item">
+                                <input
+                                    id="answerD"
+                                    class="answer-radio"
+                                    type="radio"
+                                    name="selectedAnswer"
+                                    value="D"
+                                    th:checked="${selectedAnswer == 'D'}"
+                                >
+
+                                <label class="answer-option" for="answerD">
+                                    <span class="answer-label">D</span>
+
+                                    <span
+                                        class="answer-text"
+                                        th:text="${questionCard.optionD}"
+                                    >
+                                        選択肢D
+                                    </span>
+
+                                    <span
+                                        class="answer-correct-badge"
+                                        th:if="${answered == true and questionCard.correctAnswer == 'D'}"
+                                    >
+                                        正解
+                                    </span>
+                                </label>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="form-group" th:if="${answered == true}">
+                        <label>解答結果</label>
+
+                        <table class="list-table">
+                            <tbody>
+                                <tr>
+                                    <th style="width: 160px;">あなたの解答</th>
+                                    <td th:text="${selectedAnswer}">A</td>
+                                </tr>
+
+                                <tr>
+                                    <th>正解</th>
+                                    <td>
+                                        <strong th:text="${questionCard.correctAnswer}">C</strong>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="form-group" th:if="${answered == true}">
+                        <label>解説</label>
+
+                        <div
+                            class="empty-message"
+                            style="text-align: left; white-space: pre-wrap;"
+                            th:if="${questionCard.explanation != null and !#strings.isEmpty(questionCard.explanation)}"
+                            th:text="${questionCard.explanation}"
+                        >
+                            解説文
+                        </div>
+
+                        <div
+                            class="empty-message"
+                            th:if="${questionCard.explanation == null or #strings.isEmpty(questionCard.explanation)}"
+                        >
+                            解説はまだ登録されていません。
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="primary-button inline-button">
+                            解答する
+                        </button>
+
+                        <!-- 解答後だけ詳細画面へ進める -->
+                        <a
+                            th:if="${answered == true}"
+                            th:href="@{/questions/{id}(id=${questionCard.id})}"
+                            class="secondary-button inline-button"
+                        >
+                            詳細を見る
+                        </a>
+
+                        <a
+                            th:href="@{/questions/categories/{id}/select(id=${questionCard.examCategory.id})}"
+                            class="back-link"
+                        >
+                            問題番号一覧へ戻る
+                        </a>
+                    </div>
+                </form>
+
+            </section>
+        </main>
+    </div>
+
+</body>
+</html>

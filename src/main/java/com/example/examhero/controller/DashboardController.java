@@ -1,104 +1,103 @@
 package com.example.examhero.controller;
 
 import java.security.Principal;
+import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+
+import com.example.examhero.entity.ExamCategory;
+import com.example.examhero.entity.User;
+import com.example.examhero.service.ExamCategoryService;
+import com.example.examhero.service.QuestionAttemptService;
+import com.example.examhero.service.QuestionCardService;
 
 /**
  * DashboardController
  *
  * ログイン後のメイン画面を担当するControllerです。
  *
- * ダッシュボードとは、ユーザーがログインした後に最初に見る画面です。
- *
- * この画面では、今後以下のような情報を表示していく予定です。
- *
- * - 登録した試験カテゴリ数
- * - 登録した問題カード数
- * - 今日復習する問題数
- * - 学習の進捗状況
- * - 最近解いた問題
- *
- * ただし、現時点ではまだカテゴリや問題カードのEntityを作っていないため、
- * まずは「ログインしたユーザー情報」と「各機能へのリンク」を表示します。
+ * 今回の変更点:
+ * - ダッシュボードにカテゴリ一覧を表示する
+ * - カテゴリをクリックすると、そのカテゴリの問題番号一覧へ進む
+ * - カテゴリ数、問題カード数、今日解いた問題数を実データで表示する
  */
 @Controller
 public class DashboardController {
 
     /**
-     * ダッシュボード画面を表示するメソッドです。
+     * 試験カテゴリに関する処理を担当するServiceです。
+     */
+    private final ExamCategoryService examCategoryService;
+
+    /**
+     * 問題カードに関する処理を担当するServiceです。
+     */
+    private final QuestionCardService questionCardService;
+
+    /**
+     * 問題を解いた記録に関する処理を担当するServiceです。
+     */
+    private final QuestionAttemptService questionAttemptService;
+
+    /**
+     * コンストラクタ
+     *
+     * Spring が必要なServiceを自動で渡してくれます。
+     */
+    public DashboardController(
+            ExamCategoryService examCategoryService,
+            QuestionCardService questionCardService,
+            QuestionAttemptService questionAttemptService
+    ) {
+        this.examCategoryService = examCategoryService;
+        this.questionCardService = questionCardService;
+        this.questionAttemptService = questionAttemptService;
+    }
+
+    /**
+     * ダッシュボード画面を表示します。
      *
      * GET /dashboard にアクセスされたときに実行されます。
-     *
-     * SecurityConfig.java で以下のように設定しているため、
-     * ログインに成功すると /dashboard に移動します。
-     *
-     * .defaultSuccessUrl("/dashboard", true)
-     *
-     * また、SecurityConfig.java では /dashboard はログイン必須になっています。
-     * そのため、ログインしていないユーザーが /dashboard にアクセスすると、
-     * 自動的に /login にリダイレクトされます。
-     *
-     * @param model
-     *   Controller から HTML にデータを渡すための入れ物です。
-     *
-     * @param principal
-     *   現在ログインしているユーザー情報を表すオブジェクトです。
-     *
-     *   Spring Security によってログイン済みの場合、
-     *   principal.getName() でログインIDを取得できます。
-     *
-     *   今回のアプリでは、ログインIDとしてメールアドレスを使っているため、
-     *   principal.getName() にはメールアドレスが入ります。
      */
     @GetMapping("/dashboard")
     public String showDashboard(Model model, Principal principal) {
 
-        /**
-         * ログイン中のユーザーのメールアドレスを取得します。
-         *
-         * 例:
-         *   juho@example.com
-         *
-         * 現在は CustomUserDetailsService で、
-         * Spring Security 用のユーザー名として user.getEmail() を渡しています。
-         *
-         * そのため、principal.getName() でメールアドレスを取得できます。
+        /*
+         * Spring Security からログイン中ユーザーのメールアドレスを取得します。
          */
         String loginEmail = principal.getName();
 
-        /**
-         * HTML側で loginEmail という名前で使えるように、
-         * Model にデータを追加します。
+        /*
+         * メールアドレスから、DB上の User Entity を取得します。
+         */
+        User loginUser = examCategoryService.findUserByEmail(loginEmail);
+
+        /*
+         * ダッシュボードに表示するカテゴリ一覧です。
          *
-         * dashboard.html では以下のように表示できます。
-         *
-         * th:text="${loginEmail}"
+         * これにより、ログイン直後に
+         * 「AWS SAA」「Java Silver」などのカテゴリカードを表示できます。
+         */
+        List<ExamCategory> categories = examCategoryService.findCategoriesByUser(loginUser);
+
+        /*
+         * ダッシュボード上部の数値カードに表示する実データです。
+         */
+        long categoryCount = examCategoryService.countCategoriesByUser(loginUser);
+        long questionCount = questionCardService.countQuestionCardsByUser(loginUser);
+        long todayAttemptCount = questionAttemptService.countTodayAttempts(loginUser);
+
+        /*
+         * HTML側で使う値を Model に入れます。
          */
         model.addAttribute("loginEmail", loginEmail);
+        model.addAttribute("categories", categories);
+        model.addAttribute("categoryCount", categoryCount);
+        model.addAttribute("questionCount", questionCount);
+        model.addAttribute("todayReviewCount", todayAttemptCount);
 
-        /**
-         * 今後、カテゴリ数・問題数・復習予定数などを表示する予定です。
-         *
-         * 現時点ではまだ関連Entityを作っていないため、
-         * 仮の値として 0 を渡しています。
-         *
-         * 後で ExamCategory や QuestionCard を作成したら、
-         * Serviceを使って実際の件数を取得する形に変更します。
-         */
-        model.addAttribute("categoryCount", 0);
-        model.addAttribute("questionCount", 0);
-        model.addAttribute("todayReviewCount", 0);
-
-        /**
-         * 表示するHTMLテンプレートを指定します。
-         *
-         * "dashboard" と書くと、
-         * src/main/resources/templates/dashboard.html
-         * が表示されます。
-         */
         return "dashboard";
     }
 }

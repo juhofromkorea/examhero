@@ -171,4 +171,38 @@ public class ExamCategoryService {
          */
         return examCategoryRepository.save(category);
     }
+
+    /**
+     * ログイン中ユーザーのカテゴリをIDで1件取得します。
+     *
+     * カテゴリIDだけで検索すると、他ユーザーのカテゴリを見られる危険があります。
+     * そのため、必ず id と user の両方で検索します。
+     *
+     * 今回は、
+     * 「ダッシュボードでカテゴリをクリックする」
+     * →「そのカテゴリの問題番号一覧を表示する」
+     * という流れで使います。
+     *
+     * @param id カテゴリID
+     * @param user ログイン中ユーザー
+     * @return ログイン中ユーザーが所有するカテゴリ
+     */
+    @Transactional(readOnly = true)
+    public ExamCategory findCategoryByIdAndUser(Long id, User user) {
+        return examCategoryRepository.findByIdAndUser(id, user)
+                .orElseThrow(() -> new IllegalArgumentException("カテゴリが見つかりません"));
+    }
+
+    /**
+     * ログイン中ユーザーのカテゴリ数を取得します。
+     *
+     * ダッシュボード上部の「試験カテゴリ」カードに表示します。
+     *
+     * @param user ログイン中ユーザー
+     * @return カテゴリ数
+     */
+    @Transactional(readOnly = true)
+    public long countCategoriesByUser(User user) {
+        return examCategoryRepository.countByUser(user);
+    }
 }

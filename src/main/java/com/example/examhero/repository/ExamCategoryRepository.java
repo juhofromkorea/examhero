@@ -68,4 +68,14 @@ public interface ExamCategoryRepository extends JpaRepository<ExamCategory, Long
      * 「id と user の両方」で検索するこのメソッドを使うと安全です。
      */
     Optional<ExamCategory> findByIdAndUser(Long id, User user);
+
+    /**
+     * 指定したユーザーが作成したカテゴリ数を数えます。
+     *
+     * ダッシュボードで「試験カテゴリ数」を表示するために使います。
+     *
+     * @param user ログイン中ユーザー
+     * @return ログイン中ユーザーのカテゴリ数
+     */
+    long countByUser(User user);
 }
