@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<!--
+    Thymeleaf を使うために xmlns:th を指定します。
+    th:href, th:text, th:each などの Thymeleaf 専用属性を使えるようになります。
+-->
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+
+    <!--
+        スマートフォンでも見やすくするための設定です。
+        これがないと、スマホ表示で画面が小さく縮小されて見づらくなることがあります。
+    -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>問題カード一覧 - ExamHero</title>
+
+    <!--
+        共通CSSを読み込みます。
+        src/main/resources/static/css/style.css に置いたCSSは、
+        ブラウザからは /css/style.css として参照できます。
+    -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <!--
+        page-container はログイン後画面の共通レイアウトです。
+        横幅が広がりすぎないようにし、中央寄せにします。
+    -->
+    <div class="page-container">
+
+        <!--
+            ログイン後画面の共通ヘッダーです。
+            カテゴリ一覧画面と同じ雰囲気にしています。
+        -->
+        <header class="app-header">
+
+            <!--
+                サービス名です。
+                クリックするとダッシュボードへ戻ります。
+            -->
+            <div class="app-logo">
+                <a th:href="@{/dashboard}">ExamHero</a>
+            </div>
+
+            <!--
+                ログイン中ユーザー表示とログアウトボタンです。
+            -->
+            <div class="header-actions">
+
+                <!--
+                    Controller から渡された loginEmail を表示します。
+                    QuestionController の list() で model.addAttribute("loginEmail", ...) しています。
+                -->
+                <span class="login-user">
+                    ログイン中:
+                    <strong th:text="${loginEmail}">user@example.com</strong>
+                </span>
+
+                <!--
+                    Spring Security のログアウト処理です。
+                    logout は基本的に POST で送信します。
+                -->
+                <form th:action="@{/logout}" method="post" class="logout-form">
+
+                    <!--
+                        CSRFトークンです。
+                        Spring Security を使っている場合、POST送信には基本的に必要です。
+                    -->
+                    <input
+                        type="hidden"
+                        th:name="${_csrf.parameterName}"
+                        th:value="${_csrf.token}"
+                    >
+
+                    <button type="submit" class="secondary-button">
+                        ログアウト
+                    </button>
+                </form>
+            </div>
+        </header>
+
+        <main>
+
+            <!--
+                問題カード一覧全体を白いカードとして表示します。
+            -->
+            <section class="content-card">
+
+                <!--
+                    画面タイトルです。
+                -->
+                <h1 class="page-title">問題カード一覧</h1>
+
+                <!--
+                    画面の説明文です。
+                -->
+                <p class="page-description">
+                    登録した問題カードを確認できます。まずは問題カードを1問ずつ追加していきましょう。
+                </p>
+
+                <!--
+                    問題カード作成成功時のメッセージです。
+                    QuestionController の create() で
+                    redirectAttributes.addFlashAttribute("successMessage", ...)
+                    を使って渡された場合だけ表示されます。
+                -->
+                <div class="success-message" th:if="${successMessage}" th:text="${successMessage}">
+                    問題カードを作成しました
+                </div>
+
+                <!--
+                    画面上部の操作ボタンです。
+                -->
+                <div class="form-actions">
+
+                    <!--
+                        問題カード作成画面へのリンクです。
+                        GET /questions/new に移動します。
+                    -->
+                    <a th:href="@{/questions/new}" class="primary-button inline-button">
+                        新しい問題カードを作成
+                    </a>
+
+                    <!--
+                        カテゴリ一覧画面へのリンクです。
+                        問題カード作成前にカテゴリを確認・追加したい場合に使います。
+                    -->
+                    <a th:href="@{/categories}" class="secondary-button inline-button">
+                        カテゴリ一覧へ
+                    </a>
+
+                    <!--
+                        ダッシュボードへ戻るリンクです。
+                    -->
+                    <a th:href="@{/dashboard}" class="back-link">
+                        ダッシュボードへ戻る
+                    </a>
+                </div>
+
+                <!--
+                    問題カードが1件もない場合の表示です。
+
+                    #lists.isEmpty(questionCards):
+                      questionCards が null または空リストかどうかを確認します。
+
+                    questionCards は QuestionController の list() で
+                    model.addAttribute("questionCards", questionCards);
+                    として渡しています。
+                -->
+                <div class="empty-message" th:if="${#lists.isEmpty(questionCards)}">
+                    まだ問題カードがありません。まずは「新しい問題カードを作成」から1問登録してみましょう。
+                </div>
+
+                <!--
+                    問題カードがある場合だけテーブルを表示します。
+                -->
+                <table class="list-table" th:if="${!#lists.isEmpty(questionCards)}">
+
+                    <thead>
+                        <tr>
+                            <th>カテゴリ</th>
+                            <th>問題文</th>
+                            <th>正解</th>
+                            <th>作成日時</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <!--
+                            th:each は繰り返し表示です。
+
+                            questionCards は Controller から渡された問題カード一覧です。
+                            その中の1件ずつを questionCard という名前で取り出します。
+                        -->
+                        <tr th:each="questionCard : ${questionCards}">
+
+                            <!--
+                                問題カードが所属するカテゴリ名を表示します。
+
+                                questionCard.examCategory.name と書くことで、
+                                QuestionCard に関連している ExamCategory の name を表示できます。
+
+                                ただし、Entity 側で FetchType.LAZY を使っているため、
+                                将来的に Service の @Transactional 範囲外で問題になる場合があります。
+                                今回は一覧表示が動くかを優先し、まずはこの形で進めます。
+                            -->
+                            <td>
+                                <span th:text="${questionCard.examCategory.name}">
+                                    AWS SAA
+                                </span>
+                            </td>
+
+                            <!--
+                                問題文を表示します。
+                                長文になる可能性があるため、表示上は一部だけ見せます。
+
+                                #strings.abbreviate(text, length):
+                                  文字列が長い場合に省略表示します。
+                                  例: 80文字を超えると ... のように短くします。
+                            -->
+                            <td>
+                                <a
+                                    th:href="@{/questions/{id}(id=${questionCard.id})}"
+                                    class="back-link"
+                                    th:text="${#strings.abbreviate(questionCard.questionText, 80)}"
+                                >
+                                    問題文の一部がここに表示されます
+                                </a>
+                            </td>
+
+                            <!--
+                                正解を表示します。
+                                初期MVPでは A / B / C / D の1文字です。
+                            -->
+                            <td>
+                                <strong th:text="${questionCard.correctAnswer}">
+                                    A
+                                </strong>
+                            </td>
+
+                            <!--
+                                作成日時を表示します。
+                                #temporals.format は LocalDateTime を見やすい文字列に変換します。
+                            -->
+                            <td th:text="${#temporals.format(questionCard.createdAt, 'yyyy/MM/dd HH:mm')}">
+                                2026/05/14 10:00
+                            </td>
+
+                            <!--
+                                操作欄です。
+                                まずは詳細画面へのリンクだけ用意します。
+                                編集・削除はまだ未実装なので、ここには出していません。
+                            -->
+                            <td>
+                                <a
+                                    th:href="@{/questions/{id}(id=${questionCard.id})}"
+                                    class="secondary-button"
+                                >
+                                    詳細
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </section>
+        </main>
+    </div>
+
+</body>
+</html>

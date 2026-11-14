@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>問題を選ぶ - ExamHero</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <div class="page-container">
+
+        <header class="app-header">
+            <div class="app-logo">
+                <a th:href="@{/dashboard}">ExamHero</a>
+            </div>
+
+            <div class="header-actions">
+                <span class="login-user">
+                    ログイン中:
+                    <strong th:text="${loginEmail}">user@example.com</strong>
+                </span>
+
+                <a th:href="@{/dashboard}" class="secondary-button">
+                    ダッシュボードへ戻る
+                </a>
+            </div>
+        </header>
+
+        <main>
+            <section class="content-card">
+
+                <h1 class="page-title" th:text="${category.name}">
+                    AWS SAA
+                </h1>
+
+                <p class="page-description">
+                    解きたい問題番号を選んでください。
+                </p>
+
+                <!-- 問題が1件もない場合 -->
+                <div class="empty-message" th:if="${#lists.isEmpty(questionCards)}">
+                    このカテゴリにはまだ問題カードがありません。
+                </div>
+
+                <div th:if="${#lists.isEmpty(questionCards)}" class="form-actions">
+                    <a th:href="@{/questions/new}" class="primary-button inline-button">
+                        問題を登録する
+                    </a>
+
+                    <a th:href="@{/dashboard}" class="back-link">
+                        ダッシュボードへ戻る
+                    </a>
+                </div>
+
+                <!--
+                    問題番号ボタン一覧です。
+                    ここでは問題文・正解・解説を表示しません。
+                -->
+                <div
+                    th:if="${!#lists.isEmpty(questionCards)}"
+                    style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 24px;"
+                >
+                    <a
+                        th:each="questionCard, stat : ${questionCards}"
+                        th:href="@{/questions/{id}/solve(id=${questionCard.id})}"
+                        class="primary-button inline-button"
+                        style="min-width: 100px; text-align: center;"
+                    >
+                        <span th:text="|第${stat.count}問|">第1問</span>
+                    </a>
+                </div>
+
+                <div class="form-actions" style="margin-top: 32px;">
+                    <a th:href="@{/dashboard}" class="back-link">
+                        ダッシュボードへ戻る
+                    </a>
+
+                    <a th:href="@{/questions/new}" class="back-link">
+                        問題を追加する
+                    </a>
+                </div>
+
+            </section>
+        </main>
+    </div>
+
+</body>
+</html>
